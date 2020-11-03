@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.heeexy.example.dao.StoreDao">
+
+
+
+    <resultMap id="storeMap" type="com.heeexy.example.util.model.One2Many">
+        <id column="id" property="id"/>
+        <result column="storeId" property="storeId"/>
+        <result column="storeName" property="storeName"/>
+        <result column="storeAddr" property="storeAddr"/>
+        <result column="storeTel" property="storeTel"/>
+        <result column="storeDirector" property="storeDirector"/>
+        <result column="directorTel" property="directorTel"/>
+        <result column="startTime" property="startTime"/>
+        <result column="endTime" property="endTime"/>
+        <result column="storeTotle" property="storeTotle"/>
+        <result column="storeState" property="storeState"/>
+        <result column="creator" property="creator"/>
+        <result column="updater" property="updater"/>
+
+        <result column="createdTime" property="createdTime"/>
+        <result column="updatedTime" property="updatedTime"/>
+        <result column="storeInfo" property="storeInfo"/>
+
+        <result column="deleteState" property="deleteState"/>
+
+    </resultMap>
+    <select id="countUser" resultType="Integer">
+        SELECT count(0)
+        FROM dc_store u
+        WHERE u.delete_state = '1' and u.store = #{storeId}
+    </select>
+    <select id="findAll" resultMap="storeMap">
+        SELECT
+        u.*
+        FROM (
+        SELECT
+        store_id                           storeId,
+        store_name                         storeName,
+        stroe_addr                         storeaddr,
+        store_tel                          storeTel,
+        store_director                     storeDirector,
+        director_tel                       storeDirector,
+        start_time                         startTime,
+        end_time                           endTime,
+        store_totle                        storeTotle,
+        store_state                        storeState,
+        store_info                         storeInfo,
+        creator                            creator,
+        updater                            creator,
+        user                                user,
+        delete_state                           deleteState,
+        DATE_FORMAT(created_time, '%Y.%m.%d %T') createdTime,
+        DATE_FORMAT(updated_time, '%Y.%m.%d %T') updatedTime
+        FROM dc_store
+        WHERE delete_state = '1' and user = #{storeId}
+        ORDER BY id
+        LIMIT #{offSet}, #{pageRow}
+        ) u
+
+
+        ORDER BY u.id
+    </select>
+
+    <update id="updateUser">
+        UPDATE dc_user
+        SET
+        <if test="username !='' and username !=null">
+            user_name = #{username}
+        </if>
+        <if test="addr !='' and addr !=null">
+           , addr = #{addr}
+        </if>
+        <if test="tel !='' and tel !=null">
+            , tel = #{tel}
+        </if>
+
+        , delete_state = #{deleteState}
+        WHERE id = #{id} and id != 10001
+    </update>
+
+    <insert id="addAddr" useGeneratedKeys="true" keyProperty="id" >
+        INSERT INTO dc_user
+        (user_name, addr, tel, user,delete_state) VALUES
+        (#{username}, #{addr}, #{tel}, #{userId},1)
+    </insert>
+</mapper>

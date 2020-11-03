@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="com.heeexy.example.dao.DcUserDao">
+
+
+
+    <resultMap id="userMap" type="com.heeexy.example.util.model.One2Many">
+        <id column="id" property="id"/>
+        <result column="userId" property="userId"/>
+        <result column="username" property="username"/>
+        <result column="addr" property="addr"/>
+        <result column="tel" property="tel"/>
+
+        <result column="createdTime" property="createdTime"/>
+        <result column="updatedTime" property="updatedTime"/>
+
+        <result column="deleteState" property="deleteState"/>
+
+    </resultMap>
+    <select id="countUser" resultType="Integer">
+        SELECT count(0)
+        FROM dc_user u
+        WHERE u.delete_state = '1' and u.user = #{userId}
+    </select>
+    <select id="findAll" resultMap="userMap">
+        SELECT
+        u.*
+        FROM (
+        SELECT
+        id                                      id,
+        user_name                                username,
+        addr                                addr,
+        tel                                 tel,
+        user                                user,
+        delete_state                           deleteState,
+        DATE_FORMAT(created_time, '%Y.%m.%d %T') createdTime,
+        DATE_FORMAT(updated_time, '%Y.%m.%d %T') updatedTime
+        FROM dc_user
+        WHERE delete_state = '1' and user = #{userId}
+        ORDER BY id
+        LIMIT #{offSet}, #{pageRow}
+        ) u
+
+
+        ORDER BY u.id
+    </select>
+
+    <update id="updateUser">
+        UPDATE dc_user
+        SET
+        <if test="username !='' and username !=null">
+            user_name = #{username}
+        </if>
+        <if test="addr !='' and addr !=null">
+           , addr = #{addr}
+        </if>
+        <if test="tel !='' and tel !=null">
+            , tel = #{tel}
+        </if>
+
+        , delete_state = #{deleteState}
+        WHERE id = #{id} and id != 10001
+    </update>
+
+    <insert id="addAddr" useGeneratedKeys="true" keyProperty="id" >
+        INSERT INTO dc_user
+        (user_name, addr, tel, user,delete_state) VALUES
+        (#{username}, #{addr}, #{tel}, #{userId},1)
+    </insert>
+</mapper>
